@@ -1,0 +1,17 @@
+# Marktdaten & abgeleitete Artefakte NUR lokal halten (Datenschutz!)
+db/*.duckdb
+db/*.duckdb.wal
+data/incoming/*
+!data/incoming/.gitkeep
+exports/
+*.html
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.streamlit/secrets.toml
+
+# Eingelieferte Roh-Exports nicht versionieren
+*UMSATZ*.xlsx

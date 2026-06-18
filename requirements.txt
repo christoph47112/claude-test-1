@@ -1,0 +1,8 @@
+# Betriebsauswertungs-Tool – Kern-Abhängigkeiten
+pandas>=2.0
+openpyxl>=3.1
+duckdb>=1.0
+streamlit>=1.30
+pyyaml>=6.0
+# Optionaler LLM-Layer (nur genutzt, wenn ANTHROPIC_API_KEY gesetzt ist)
+anthropic>=0.40

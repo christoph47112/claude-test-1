@@ -1,0 +1,59 @@
+# Spalten-Mapping & Feld-Contract für die noch zu liefernden Quellen.
+#
+# Vorgehen bei Lieferung (Phase B):
+#   1. python ingest.py <datei.xlsx> --inspect   ->  zeigt die echten Spalten +
+#      heuristische Vorschläge (suggestions).
+#   2. Hier unter `columns:` das interne Feld der realen Spalte zuordnen
+#      (internes_feld: "Reale Spaltenüberschrift").
+#   3. python ingest.py <datei.xlsx>             ->  lädt mit bestätigtem Mapping.
+#
+# `required_fields` MÜSSEN gemappt sein, sonst lädt der Loader nicht
+# (keine erfundenen Daten). `optional_fields` sind nice-to-have.
+# Statt Jahr/Monat/Woche kann auch ein `datum` gemappt werden – dann werden
+# GJ/KW automatisch (ISO-Woche, inkl. Jahreswechsel-Logik) abgeleitet.
+
+# ------------------------------------------------------------------
+# Quelle 2: Artikel-Umsatz-Export (Drilldown unter der Warengruppe)
+# ------------------------------------------------------------------
+artikel:
+  sheet: 0                      # Blattname oder -index
+  required_fields:
+    - artikel_id                # Artikelnummer / GTIN  (Join-Schlüssel)
+    - umsatz
+  optional_fields:
+    - bezeichnung
+    - warengruppe
+    - abteilung
+    - jahr
+    - monat
+    - woche
+    - datum                     # Alternative zu jahr/monat/woche
+    - menge
+    - kunden
+    - rohertrag                 # Rohertrag / Spanne
+  columns: {}                   # z. B.  artikel_id: "Artikelnummer"
+                                #        umsatz: "Umsatz"
+
+# ------------------------------------------------------------------
+# Quelle 3: Bestand / Verfügbarkeit (Ursachen-Overlay aus Bestellhilfe)
+# ------------------------------------------------------------------
+bestand:
+  sheet: 0
+  required_fields:
+    - artikel_id                # gemeinsamer Join-Schlüssel mit Artikel-Umsatz
+    - bestand
+  optional_fields:
+    - bezeichnung
+    - warengruppe
+    - abteilung
+    - jahr
+    - monat
+    - woche
+    - datum
+    - luecke_flag               # Regallücke / Nullbestand (sonst: Bestand<=0)
+    - lost_sale                 # Negativbestand / Lost-Sale-Indikator
+  columns: {}
+
+# Hinweis Join-Schlüssel: artikel_id muss in Artikel-Umsatz UND Bestand
+# identisch formatiert sein (GTIN vs. interne Nr.). Bei Abweichung hier einen
+# zweiten Mapping-Schritt einplanen (z. B. Cross-Reference-Tabelle).
