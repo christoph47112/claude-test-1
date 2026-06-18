@@ -25,8 +25,11 @@ casten (`'01' -> 1`), sonst greift die DEZ/KW01-Regel nicht.
 ## 2. Laufende Woche ausschließen
 
 Nur **vollständige** Wochen vergleichen, über alle Jahre denselben KW-Bereich.
-`--bis-kw N` setzt die Obergrenze; ohne Angabe wird die höchste vorhandene KW
-des jüngsten GJ genommen. Die Analyse filtert konsequent `kw <= bis_kw`.
+`--bis-kw N` setzt die Obergrenze. Ohne Angabe ermittelt
+`loaders.last_complete_kw()` die **letzte abgeschlossene KW**: ist die höchste
+KW im jüngsten GJ >= der aktuellen ISO-KW, gilt sie als laufend und wird
+ausgeschlossen (`bis_kw = max-1`); sonst gilt der Export als sauber
+abgeschlossen. Die Analyse filtert konsequent `kw <= bis_kw`.
 
 ## 3. Unterdrückte Mengen (`*`)
 

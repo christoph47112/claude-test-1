@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
+import datetime as dt
 import yaml
 import pandas as pd
 import numpy as np
@@ -36,9 +37,38 @@ class UmsatzResult:
     frame: pd.DataFrame
     markt: str
     gj_range: tuple[int, int]
-    kw_max: int
+    kw_max: int           # tatsächlich verwendeter Vergleichs-Endpunkt
     n_input_rows: int
     plausi: pd.DataFrame  # Umsatz je GJ x (<=bis_kw)
+    kw_max_data: int = 0  # höchste KW im jüngsten GJ (vor bis_kw-Filter)
+    kw_reason: str = ""   # Begründung der automatischen KW-Wahl
+
+
+def last_complete_kw(latest_gj: int, kw_max_latest: int,
+                     today: "dt.date | None" = None) -> tuple[int, str]:
+    """Letzte ABGESCHLOSSENE KW bestimmen (laufende Woche ausschließen).
+
+    Heuristik, deterministisch aus Daten + Kalender:
+      - Liegt die höchste vorhandene KW im aktuell laufenden Geschäftsjahr UND
+        ist sie >= der aktuellen ISO-Kalenderwoche, gilt sie als laufend
+        (unvollständig) -> bis_kw = kw_max_latest - 1.
+      - Sonst ist der Export bereits sauber abgeschlossen -> bis_kw = kw_max_latest.
+    Über --bis-kw jederzeit übersteuerbar.
+    """
+    today = today or dt.date.today()
+    iso = today.isocalendar()
+    # GJ "heute": DEZ/KW01-Sonderfall greift nur in der Jahreswechselwoche.
+    cur_gj = iso.year
+    if iso.week == 1 and today.month == 12:
+        cur_gj = today.year + 1
+    if latest_gj >= cur_gj and kw_max_latest >= iso.week and kw_max_latest > 1:
+        return kw_max_latest - 1, (
+            f"KW {kw_max_latest} entspricht der laufenden Woche "
+            f"(heute KW {iso.week}/{cur_gj}) -> ausgeschlossen, "
+            f"Vergleich bis KW {kw_max_latest - 1}.")
+    return kw_max_latest, (
+        f"Export endet mit abgeschlossener KW {kw_max_latest} -> "
+        f"Vergleich bis KW {kw_max_latest}.")
 
 
 def detect_market_column(header_row: list) -> int:
@@ -98,9 +128,11 @@ def load_umsatz(path: str | Path, bis_kw: int | None = None) -> UmsatzResult:
     wide["markt"] = markt_name
 
     # bis_kw bestimmen / anwenden
-    kw_max_data = int(wide["kw"].max())
+    latest_gj = int(wide["gj"].max())
+    kw_max_latest = int(wide[wide["gj"] == latest_gj]["kw"].max())
+    auto_kw, kw_reason = last_complete_kw(latest_gj, kw_max_latest)
     if bis_kw is None:
-        bis_kw = kw_max_data
+        bis_kw = auto_kw
     wide = wide[wide["kw"] <= bis_kw].copy()
 
     wide["gj"] = wide["gj"].astype("Int64").astype(int)
@@ -116,6 +148,7 @@ def load_umsatz(path: str | Path, bis_kw: int | None = None) -> UmsatzResult:
     return UmsatzResult(
         frame=frame, markt=markt_name, gj_range=(gj_min, gj_max),
         kw_max=bis_kw, n_input_rows=n_input, plausi=plausi,
+        kw_max_data=kw_max_latest, kw_reason=kw_reason,
     )
 
 

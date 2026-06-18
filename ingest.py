@@ -46,7 +46,10 @@ def ingest_umsatz(path: Path, bis_kw: int | None) -> None:
     print(f"  Markt erkannt (rechteste Wertespalte): '{res.markt}'")
     print(f"  Eingelesene Wochen-Zeilen normalisiert auf "
           f"{len(res.frame):,} (Abteilung×WG×GJ×KW)".replace(",", "."))
-    print(f"  Vergleichszeitraum: bis einschließlich KW {res.kw_max}")
+    if bis_kw is None:
+        print(f"  Letzte abgeschlossene KW (automatisch): {res.kw_reason}")
+    print(f"  Vergleichszeitraum: bis einschließlich KW {res.kw_max} "
+          f"(über alle GJ identisch)")
     print("\n  Plausibilität – Umsatz je Geschäftsjahr (GJ, KW 1..%d):" % res.kw_max)
     for gj, row in res.plausi.iterrows():
         print(f"    GJ {gj}:  {euro(row['umsatz_summe'], 2)}")
