@@ -38,12 +38,24 @@ Bestellprozess bleibt unberührt.
 3. **Analog-Wetter-Methode.** Statt schwerem Modell auf dünner Historie:
    historische Tage mit **ähnlicher Temperatur/Wetterlage** heranziehen und
    schauen, was lief – verglichen wird nur gegen **Nicht-Aktions-Tage**.
-4. **Aktion in der Zukunft = Stopp-Signal.** Steht für einen Watchlist-Artikel
-   nächste Woche eine Aktion an, gibt das Tool **keine Wetterzahl**, sondern
-   flaggt „Aktion → manuell disponieren".
-5. **2-Tage-Vorlauf.** Passt zum Bestellrhythmus (Mo→Mi, Di→Do, Mi→Fr, Sa→Di);
+4. **Zukunfts-Aktion ist NICHT in der App.** Bewusste Entscheidung: Die App
+   kennt die kommende Aktion nicht und warnt nicht. Folge: Für einen Watchlist-
+   Artikel, der nächste Woche zufällig in Aktion ist, zeigt die App die
+   **Normal-Wetter-Erwartung**; den Aktions-Schub rechnet der Nutzer aus
+   Erfahrung selbst drauf (passt zu „kein Bestell-Ersatz").
+5. **Historische Aktion nur im Maschinenraum.** Sie erscheint in **keinem
+   Screen**, dient ausschließlich dazu, alte Aktionswochen aus der Lernbasis
+   auszuschließen. Variante A: gelieferte historische Aktionsliste (sauber).
+   Variante B: keine Datei → Aktionswochen werden als statistische Ausreißer
+   erkannt und ausgeschlossen (gröber). → offener Punkt.
+6. **Watchlist wird vom Tool VORGESCHLAGEN, nicht vom Nutzer definiert.** Für
+   jeden Artikel wird die Wetter-Sensitivität (Korrelation Tagesabsatz ×
+   Temperatur, nur Nicht-Aktions-Tage) berechnet, nach Stärke sortiert und als
+   fertige Liste zur **einmaligen Freigabe per Haken** vorgelegt. Kein Vorwissen
+   nötig.
+7. **2-Tage-Vorlauf.** Passt zum Bestellrhythmus (Mo→Mi, Di→Do, Mi→Fr, Sa→Di);
    2-Tage-Wettervorhersagen sind verlässlich.
-6. **Datenschutz.** Wetterdaten (Historie + Vorhersage) werden extern zur
+8. **Datenschutz.** Wetterdaten (Historie + Vorhersage) werden extern zur
    Markt-PLZ geholt; **Verkaufsdaten verlassen den Rechner nicht.**
 
 ## Daten-Contract (neue Quellen – Details in `mapping.yaml`)
@@ -57,10 +69,12 @@ Bestellprozess bleibt unberührt.
 
 ## Offene Punkte (vor Baubeginn Phase C zu klären)
 
-- [ ] **Aktionsplan der Zukunft maschinenlesbar?** (Liste KW/Tag → Artikel/WG →
-      Aktionsart, **nicht** PDF-Prospekt). Vergangenheit ist bestätigt.
-- [ ] **Watchlist-Mechanik:** Auto-Flag aus Korrelation **+ einmalige Freigabe**
-      (empfohlen, hält die Liste kurz) – bestätigen.
+- [x] **Zukunfts-Aktion:** bewusst **nicht** in der App. Nutzer überrechnet selbst.
+- [x] **Watchlist-Mechanik:** Tool schlägt vor (Korrelation) + einmalige Freigabe.
+      Nutzer muss nichts vordefinieren.
+- [ ] **Historische Aktion – Reinigung der Lernbasis:** Variante A (gelieferte
+      historische Aktionsliste, sauber) **oder** Variante B (ohne Datei,
+      Ausreißer-Erkennung, gröber)? → entscheiden.
 - [ ] **Tiefe der Tageshistorie** (1 / 2 / 3+ Jahre) – je mehr, desto stabiler
       die Wetter-Sensitivität.
 - [ ] **Markt-PLZ** eintragen (`mapping.yaml` → `prognose.markt_plz`).

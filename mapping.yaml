@@ -83,18 +83,19 @@ tagesabsatz:
   columns: {}
 
 # ------------------------------------------------------------------
-# Quelle 5: Aktions-/Werbekalender  (Pflicht für saubere Prognose)
-#   - VERGANGENHEIT: markiert Aktionswochen -> werden aus der Normal-
-#     Erwartung ausgeschlossen (sonst Prognose systematisch zu hoch).
-#   - ZUKUNFT: geplante Aktion der kommenden Woche -> für Watchlist-
-#     Artikel mit geplanter Aktion wird KEINE Wetterzahl gezeigt,
-#     sondern "Aktion -> manuell disponieren".
+# Quelle 5: Aktions-/Werbekalender  – NUR VERGANGENHEIT, NUR Maschinenraum
+#   Zweck: Aktionswochen aus der Normal-Erwartung ausschliessen (sonst
+#   Prognose systematisch zu hoch). Erscheint in KEINEM UI-Screen.
+#   ZUKUNFTS-Aktion ist bewusst NICHT in der App (Nutzer-Entscheidung):
+#   der Aktions-Schub der kommenden Woche wird vom Nutzer selbst beachtet.
+#   Variante B (ganz ohne diese Datei): Aktionswochen werden statt dessen
+#   als statistische Ausreisser erkannt und ausgeschlossen (groeber).
 # ------------------------------------------------------------------
 aktion:
   sheet: 0
   required_fields:
     - datum                     # oder jahr/woche
-    - aktion_flag               # Artikel/WG an diesem Tag/KW in Aktion?
+    - aktion_flag               # Artikel/WG an diesem Tag/KW in Aktion (Historie)?
   optional_fields:
     - artikel_id                # wenn artikelgenau; sonst warengruppe
     - warengruppe
@@ -102,6 +103,9 @@ aktion:
     - jahr
     - woche
   columns: {}
+  # Hinweis: Diese Quelle ist OPTIONAL. Fehlt sie, greift die Ausreisser-
+  # Erkennung (Variante B). Wird sie geliefert, reinigt sie die Lernbasis
+  # exakt (Variante A) – ohne je in der UI aufzutauchen.
 
 # ------------------------------------------------------------------
 # Quelle 6: Watchlist & Standort (Konfig, keine Wochen-Datei)
