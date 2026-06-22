@@ -57,3 +57,64 @@ bestand:
 # Hinweis Join-Schlüssel: artikel_id muss in Artikel-Umsatz UND Bestand
 # identisch formatiert sein (GTIN vs. interne Nr.). Bei Abweichung hier einen
 # zweiten Mapping-Schritt einplanen (z. B. Cross-Reference-Tabelle).
+
+# ==================================================================
+# PHASE C – Wetter-/Faktor-Prognose (aus Grilling-Session abgeleitet)
+# Nur für eine schmale WATCHLIST faktor-sensibler Artikel, NICHT als
+# Bestell-Ersatz. Prognose gilt für NORMAL-Wochen; Aktionswochen werden
+# beim Lernen der Normal-Erwartung AUSGESCHLOSSEN (Aktion = Filter, nicht
+# Modellfaktor). Details: docs/ROADMAP_PROGNOSE.md
+# ==================================================================
+
+# ------------------------------------------------------------------
+# Quelle 4: Tagesabsatz (Tagesgenauigkeit, Menge ist der Wetter-Hebel)
+# ------------------------------------------------------------------
+tagesabsatz:
+  sheet: 0
+  required_fields:
+    - artikel_id                # Join-Schlüssel zu Artikel/Bestand
+    - datum                     # TAGESdatum (nicht KW!) – Wetter wirkt tagesweise
+    - menge                     # Absatzmenge in Stück/Einheiten
+  optional_fields:
+    - bezeichnung
+    - warengruppe
+    - abteilung
+    - umsatz
+  columns: {}
+
+# ------------------------------------------------------------------
+# Quelle 5: Aktions-/Werbekalender  (Pflicht für saubere Prognose)
+#   - VERGANGENHEIT: markiert Aktionswochen -> werden aus der Normal-
+#     Erwartung ausgeschlossen (sonst Prognose systematisch zu hoch).
+#   - ZUKUNFT: geplante Aktion der kommenden Woche -> für Watchlist-
+#     Artikel mit geplanter Aktion wird KEINE Wetterzahl gezeigt,
+#     sondern "Aktion -> manuell disponieren".
+# ------------------------------------------------------------------
+aktion:
+  sheet: 0
+  required_fields:
+    - datum                     # oder jahr/woche
+    - aktion_flag               # Artikel/WG an diesem Tag/KW in Aktion?
+  optional_fields:
+    - artikel_id                # wenn artikelgenau; sonst warengruppe
+    - warengruppe
+    - aktionsart                # Prospekt / Zweitplatzierung / Preis
+    - jahr
+    - woche
+  columns: {}
+
+# ------------------------------------------------------------------
+# Quelle 6: Watchlist & Standort (Konfig, keine Wochen-Datei)
+#   watchlist: faktor-sensible Artikel/WG. Empfehlung: Tool flaggt
+#   Kandidaten automatisch aus der Tageshistorie (Wetter-Korrelations-
+#   stärke) -> du bestätigst einmalig. Hier manuell pinnbar.
+#   plz: für den Wetterbezug (Historie zum Lernen + 2-Tage-Vorhersage).
+#   Wetterdaten werden extern geholt; Verkaufsdaten bleiben lokal.
+# ------------------------------------------------------------------
+prognose:
+  markt_plz: ""                 # z. B. "30161"
+  watchlist_artikel: []         # optionale feste Liste von artikel_id
+  watchlist_warengruppen: []    # oder ganze Warengruppen
+  auto_flag: true               # Kandidaten autom. aus Korrelation vorschlagen
+  bestell_vorlauf_tage: 2       # Mo->Mi, Di->Do, Mi->Fr, Sa->Di
+
